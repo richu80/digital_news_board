@@ -21,10 +21,11 @@
                     headers: { 'Content-Type': 'application/json' }
                 })
                 this.$emit('refresh')
+                //оповещает родительский компонент о завершении работы
             },
 
             async unlike() {
-                await fetch('/api/post/<int:post_id>/like',
+                await fetch('/api/post/<int:post_id>/unlike',
                 { 
                     method : "DELETE",
                     credentials: 'include',

@@ -197,7 +197,7 @@ def get_users():
 
 
 
-@api.route('/post/<int:post_id>/create_comment', methdos=['POST'])
+@api.route('/post/<int:post_id>/create_comment', methods=['POST'])
 def create_comment(post_id):
     if 'user_id' not in session:
         return jsonify({"error": "Unauthorized"}), 401
@@ -225,7 +225,7 @@ def create_comment(post_id):
 
 
 
-@api.route('/post/comment/<int:comment_id>/delete', methods=['DETELE'])
+@api.route('/post/comment/<int:comment_id>/delete', methods=['DELETE'])
 def comment_delete(comment_id):
     if 'user_id' not in session:
         return jsonify({'error': "Unauthorized"}), 401
