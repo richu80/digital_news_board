@@ -8,7 +8,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
 app.secret_key="24"
 init_db(app)
 CORS(app, supports_credentials=True)
-app.register_blueprint(api)
+app.register_blueprint(api, url_prefix='/api')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='127.0.0.1', port=5000)

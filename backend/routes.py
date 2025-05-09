@@ -79,7 +79,7 @@ def sign_in():
 
 
 @api.route('/logout', methods=['POST'])
-def logout(user):
+def logout():
     session.pop('user_id', None)
 
     return jsonify({'message': 'Logout successful'}), 200
@@ -123,7 +123,7 @@ def home():
 def post(post_id):
     post = Post.query.get(post_id)
 
-    return jsonify([present_post(post)]), 200
+    return jsonify(present_post(post)), 200
 
 
 
@@ -142,7 +142,7 @@ def post_delete(post_id):
 
     db.session.delete(post)
     db.session.commit()
-
+    return jsonify({'message': 'Post deleted successfully'}), 200
 
 
 @api.route('/post/<int:post_id>/like', methods=['POST'])
@@ -155,8 +155,8 @@ def post_like(post_id):
     if not post:
         return jsonify({'error': 'post not found'}), 404
     
-    like = Like.filter_by(user_id=session['user_id'], post_id=post_id).first()
-
+    like = Like.query.filter_by(user_id=session['user_id'], post_id=post_id).first()
+    
     if like:
         return jsonify({'error': 'You already liked this post'}), 400
     
@@ -166,6 +166,7 @@ def post_like(post_id):
 
     db.session.add(like)
     db.session.commit()
+    return jsonify({'message': 'Post liked successfully'}), 200
 
 
 
@@ -179,14 +180,14 @@ def post_unlike(post_id):
     if not post:
         return jsonify({'error': 'post not found'}), 404
     
-    like = Like.filter_by(user_id=session['user_id'], post_id=post_id).first()
+    like = Like.query.filter_by(user_id=session['user_id'], post_id=post_id).first()
 
     if not like:
-        return jsonify({'error': 'like not found'}), 404
+        return jsonify({'error': 'like not found'}), 400
     
     db.session.delete(like)
     db.session.commit()
-
+    return jsonify({'message': 'Post liked successfully'}), 200
 
 
 @api.route('/get_users', methods=['GET'])
@@ -236,6 +237,8 @@ def comment_delete(comment_id):
     
     if not comment:
         return jsonify({'error': 'comment not found'}), 404
+    if session['user_id'] != comment.user_id:
+        return jsonify({'error': 'Unauthorized'}), 403
     
     db.session.delete(comment)
     db.session.commit()

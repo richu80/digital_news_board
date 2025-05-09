@@ -155,7 +155,7 @@
     methods: {
       async sign_up() {
         try {
-          const response = await fetch('http://127.0.0.1:5000', {
+          const response = await fetch('/api/sign_up', {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
