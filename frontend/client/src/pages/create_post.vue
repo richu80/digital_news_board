@@ -1,5 +1,5 @@
 <template>
-   <h2>Создай пост, мраз</h2>
+   <h2>Создайте посn</h2>
    <input v-model="title" placeholder="Название поста" type="text">
    <select v-model="category">
         <option>опера</option>
