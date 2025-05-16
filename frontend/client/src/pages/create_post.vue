@@ -33,7 +33,7 @@
                 const body = {
                     title: this.title,
                     category: this.category,
-                    content: this.content,
+                    text: this.content,
                     image: this.image
                 }
                 const response = await fetch('/api/create_post', {
