@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request, session, redirect, url_for, flash
 from models import db, User, Post, Like, Comment
+from flask_login import current_user
 
 
 api = Blueprint('api', __name__)
@@ -24,7 +25,8 @@ def present_post(post):
         'text': post.text,
         'image': post.image,
         'category': post.category,
-        'created_at': post.created_at
+        'created_at': post.created_at,
+        'is_author': current_user.is_authenticated and current_user.id == post.user_id
     }
 
 
