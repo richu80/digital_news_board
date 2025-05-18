@@ -133,12 +133,16 @@ def post(post_id):
 def post_delete(post_id):
     if 'user_id' not in session:
         return jsonify({'error': "Unauthorized"}), 401
-    
+
     post = Post.query.get(post_id)
 
-    if session['user_id'] != post.user_id:
-        return jsonify({'error': 'Unauthorized'}), 403
+    if current_user.id != post.user_id:
+        return jsonify({'error': 'You can not delete this post'})
     
+
+
+
+
     if not post:
         return jsonify({'error': 'post not found'}), 404
 
