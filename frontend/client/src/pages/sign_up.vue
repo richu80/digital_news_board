@@ -1,12 +1,12 @@
 <template>
-  <div class="hello-kitty-background min-vh-100 d-flex align-items-center justify-content-center">
-    <div class="w-100 mx-auto p-4 mb-4 hello-kitty-card rounded-3 shadow-sm" style="max-width: 400px;">
-      <h2 class="h5 mb-3 text-center hello-kitty-title">Create your account</h2>
+  <div class="page-container hello-kitty-background-page">
+    <div class="hk-card auth-card mx-auto p-4 mb-4 rounded-3 shadow-sm">
+      <h2 class="text-center hk-title">Create your account</h2>
       <div class="mb-3">
         <input 
           v-model="username" 
           type="text" 
-          class="form-control hello-kitty-input text-center" 
+          class="form-control text-center" 
           placeholder="Username"
         >
       </div>
@@ -14,7 +14,7 @@
         <input 
           v-model="phone" 
           type="tel" 
-          class="form-control hello-kitty-input text-center" 
+          class="form-control text-center" 
           placeholder="Phone number"
         >
       </div>
@@ -22,43 +22,24 @@
         <input 
           v-model="password" 
           type="password" 
-          class="form-control hello-kitty-input text-center" 
+          class="form-control text-center" 
           placeholder="Password"
         >
       </div>
       <button 
         @click="sign_up" 
-        class="btn w-100 hello-kitty-button"
+        class="hk-button w-100"
       >
         Sign Up
       </button>
+      <p class="mt-3 text-center">
+        Already have an account? <router-link to="/sign_in">Sign In</router-link>
+      </p>
     </div>
 
-    <div class="w-100 mx-auto p-4 hello-kitty-card rounded-3 shadow-sm" style="max-width: 400px;">
-      <h2 class="h5 mb-3 text-center hello-kitty-title">Sign in</h2>
-      <div class="mb-3">
-        <input 
-          v-model="phone" 
-          type="tel" 
-          class="form-control hello-kitty-input text-center" 
-          placeholder="Phone number"
-        >
-      </div>
-      <div class="mb-3">
-        <input 
-          v-model="password" 
-          type="password" 
-          class="form-control hello-kitty-input text-center" 
-          placeholder="Password"
-        >
-      </div>
-      <button 
-        @click="sign_in" 
-        class="btn w-100 hello-kitty-button"
-      >
-        Sign In
-      </button>
-    </div>
+    <!-- The second card for Sign In was redundant here as there's a separate sign_in.vue -->
+    <!-- I have removed it for clarity on the sign_up page -->
+
   </div>
 </template>
 
@@ -85,74 +66,70 @@ export default {
           })
         });
         const data = await response.json();
-        alert("Пользователь зарегистрирован");
+        if (response.ok) {
+            alert("User registered successfully!");
+            this.$router.push('/sign_in');
+        } else {
+            alert(data.error || "Failed to register.");
+        }
       } catch (error) {
-        console.error("Ошибка при загрузке данных с сервера:", error);
+        console.error("Error during sign up:", error);
+        alert("An error occurred. Please try again.");
       }
     },
-
-    async sign_in() {
-      try {
-        const response = await fetch('/api/sign_in', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            phone_number: this.phone,
-            password: this.password
-          })
-        });
-        const data = await response.json();
-        if (response.ok) this.$router.push('/home');
-        else alert("Вход запрещен");
-      } catch (error) {
-        console.error("Ошибка при загрузке данных с сервера:", error);
-      }
-    }
+    // Removed sign_in method as this is sign_up.vue
   }
 }
 </script>
 
 <style scoped>
-/* Hello Kitty Theme */
-.hello-kitty-background {
-  background: url('https://www.itl.cat/pngfile/big/10-103389_hello-kitty-background-hello-kitty-desktop-wallpaper.jpg') center/cover no-repeat; /* Hello Kitty background */
+/* Scoped styles for sign_up.vue */
+.hello-kitty-background-page {
+  background: url('https://www.itl.cat/pngfile/big/10-103389_hello-kitty-background-hello-kitty-desktop-wallpaper.jpg') center/cover no-repeat fixed;
+  min-height: calc(100vh - 70px); /* Adjust based on navbar height if fixed */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.hello-kitty-card {
-  background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white for the card */
-  border-radius: 20px; /* Rounded corners */
-  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+.auth-card {
+  max-width: 450px; /* Slightly wider card */
+  background-color: rgba(255, 255, 255, 0.95); /* More opaque for better readability */
 }
 
-.hello-kitty-title {
-  color: #e75480; /* Pink color */
-  font-family: 'Comic Sans MS', cursive; /* Playful font */
-  font-size: 1.75rem;
-  margin-bottom: 1rem;
+.hk-title {
+  /* Uses global h1-h6 styles but can be overridden */
+  font-size: 2rem; /* Specific size for auth titles */
+  color: #e75480;
 }
 
-.hello-kitty-input {
-  border-radius: 15px;
-  border: 2px solid #f8b1d5; /* Lighter pink border */
-  padding: 10px 15px;
-  margin-bottom: 15px;
-  font-family: 'Arial', sans-serif;
-  background-color: #fff; /* White background for inputs */
+/* Inputs and buttons will use global styles from style.css by default */
+/* .form-control will use global input styles */
+/* .hk-button will use global button styles */
+
+/* Add spacing and specific styles if needed */
+.form-control {
+  margin-bottom: 20px; /* More space between inputs */
 }
 
-.hello-kitty-button {
-  background-color: #f48fb1; /* Main pink color */
-  color: white;
-  border: none;
-  border-radius: 25px;
-  padding: 12px 25px;
-  font-family: 'Comic Sans MS', cursive;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+.w-100 {
+  width: 100%;
 }
 
-.hello-kitty-button:hover {
-  background-color: #ec407a; /* Darker pink on hover */
+.text-center {
+ text-align: center;
+}
+
+.mt-3 {
+ margin-top: 1rem;
+}
+
+p a {
+  color: #ff69b4; /* Link color consistent with global */
+  font-weight: bold;
+}
+p a:hover {
+  color: #ff1493;
+  text-decoration: underline;
 }
 </style>

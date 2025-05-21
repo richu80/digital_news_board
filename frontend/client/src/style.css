@@ -1,11 +1,11 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light; /* Default to light scheme */
+  color: #5e3505; /* Darker pink/brown for text for readability on light backgrounds */
+  background-color: #fff0f5; /* Lavender blush - a very light pink background */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -15,65 +15,119 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+  color: #ff69b4; /* Hot pink for links */
+  text-decoration: none; /* Remove underline by default */
 }
 a:hover {
-  color: #535bf2;
+  color: #ff1493; /* Deep pink for link hover */
+  text-decoration: underline;
 }
 
 body {
   margin: 0;
   display: flex;
-  place-items: center;
-  min-width: 320px;
+  flex-direction: column; /* Allow for header and content stacking */
   min-height: 100vh;
+  background-color: #fff0f5; /* Ensure body bg color matches root */
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  color: #e75480; /* Main Hello Kitty pink for titles */
+  margin-top: 1em;
+  margin-bottom: 0.5em;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
+h1 { font-size: 2.8em; line-height: 1.1; }
+h2 { font-size: 2.2em; line-height: 1.1; }
+h3 { font-size: 1.8em; line-height: 1.1; }
+
+button, .hk-button { /* General button style */
+  border-radius: 20px; /* Rounded corners */
+  border: 2px solid #f48fb1; /* Pink border */
+  padding: 0.8em 1.5em;
   font-size: 1em;
-  font-weight: 500;
+  font-weight: 600;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #f48fb1; /* Main pink color */
+  color: white;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.25s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
-button:hover {
-  border-color: #646cff;
+button:hover, .hk-button:hover {
+  background-color: #ec407a; /* Darker pink on hover */
+  border-color: #ec407a;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
 }
 button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+button:focus-visible,
+.hk-button:focus,
+.hk-button:focus-visible {
+  outline: 3px auto #ff80ab; /* Lighter pink focus outline */
 }
 
-.card {
+/* Generic Card Style */
+.hk-card {
+  background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+  border-radius: 20px;
+  box-shadow: 0px 5px 20px rgba(231, 84, 128, 0.2); /* Pinkish shadow */
   padding: 2em;
+  margin: 1em auto; /* Center cards and add some margin */
+  max-width: 500px; /* Default max width for cards */
 }
 
 #app {
-  max-width: 1280px;
+  width: 100%; /* Make app take full width */
+  max-width: 1280px; /* Max content width */
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0; /* Remove default padding, handle in components/body */
   text-align: center;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+/* Input field styling - global (can be overridden in components if needed) */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="tel"],
+textarea {
+  border-radius: 15px;
+  border: 2px solid #f8b1d5; /* Lighter pink border */
+  padding: 12px 18px;
+  margin-bottom: 15px;
+  font-family: 'Arial', sans-serif; /* Keep readable font for inputs */
+  background-color: #fff; /* White background for inputs */
+  color: #333; /* Dark text */
+  width: calc(100% - 36px); /* Full width minus padding */
+  box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+textarea:focus {
+  border-color: #e75480; /* Main pink border on focus */
+  box-shadow: 0 0 8px rgba(231, 84, 128, 0.3); /* Pink glow on focus */
+  outline: none;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Utility classes */
+.text-center {
+  text-align: center;
+}
+.mb-1 { margin-bottom: 0.25rem !important; }
+.mb-2 { margin-bottom: 0.5rem !important; }
+.mb-3 { margin-bottom: 1rem !important; }
+.mt-1 { margin-top: 0.25rem !important; }
+.mt-2 { margin-top: 0.5rem !important; }
+.mt-3 { margin-top: 1rem !important; }

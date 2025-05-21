@@ -1,0 +1,9 @@
+alembic==1.12.1
+Flask==2.2.2
+flask_bcrypt==1.0.1
+flask_cors==4.0.0
+Flask_Login==0.6.2
+flask_migrate==4.0.5
+Flask-SQLAlchemy==3.0.3
+SQLAlchemy==2.0.23
+Werkzeug==2.2.3

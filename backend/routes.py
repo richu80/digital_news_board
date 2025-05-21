@@ -1,5 +1,7 @@
 from flask import Blueprint, jsonify, request, session, redirect, url_for, flash
 from models import db, User, Post, Like, Comment
+from flask_login import login_user, logout_user, current_user, login_required
+from sqlalchemy.exc import IntegrityError
 
 
 api = Blueprint('api', __name__)
@@ -17,6 +19,11 @@ def present_user(user):
 
 
 def present_post(post):
+    likes_count = Like.query.filter_by(post_id=post.id).count()
+    is_liked_by_current_user = False
+    if current_user.is_authenticated:
+        is_liked_by_current_user = Like.query.filter_by(post_id=post.id, user_id=current_user.id).first() is not None
+
     return {
         'id': post.id,
         'user_id': post.user_id,
@@ -25,8 +32,9 @@ def present_post(post):
         'image': post.image,
         'category': post.category,
         'created_at': post.created_at,
-        'is_author': 'user_id' in session and session['user_id'] == post.user_id,
-        'counter': Like.query.filter_by(post_id = post.id).count
+        'is_author': current_user.is_authenticated and current_user.id == post.user_id,
+        'likes_count': likes_count,
+        'is_liked': is_liked_by_current_user
     }
 
 
@@ -47,6 +55,14 @@ def sign_up():
     if not data or not all(key in data for key in ['username', 'phone_number', 'password']):
         return jsonify({"error": "Invalid request"}), 400
 
+    # Check if username already exists
+    if User.query.filter_by(username=data['username']).first():
+        return jsonify({"error": "Username already exists"}), 409
+
+    # Check if phone number already exists
+    if User.query.filter_by(phone_number=data['phone_number']).first():
+        return jsonify({"error": "Phone number already registered"}), 409
+
     user = User(
         username=data['username'],
         phone_number=data['phone_number'],
@@ -54,8 +70,12 @@ def sign_up():
     )
     user.set_password(data['password'])
 
-    db.session.add(user)
-    db.session.commit()
+    try:
+        db.session.add(user)
+        db.session.commit()
+    except IntegrityError: # Catch other potential integrity errors, though specific checks above are better
+        db.session.rollback()
+        return jsonify({"error": "Database error: Could not create user"}), 500
 
     return jsonify({"message": "User registered successfully"}), 201
 
@@ -73,8 +93,8 @@ def sign_in():
     if not user or not user.check_password(data['password']):
         return jsonify({"error": "Invalid phone number or password"}), 401
 
+    login_user(user)
     session['user_id'] = user.id
-    flash("Login successful.", "success")
 
     return jsonify({"message": "Login successful"}), 200
 
@@ -82,6 +102,7 @@ def sign_in():
 
 @api.route('/logout', methods=['POST'])
 def logout():
+    logout_user()
     session.pop('user_id', None)
 
     return jsonify({'message': 'Logout successful'}), 200
@@ -133,12 +154,16 @@ def post(post_id):
 def post_delete(post_id):
     if 'user_id' not in session:
         return jsonify({'error': "Unauthorized"}), 401
-    
+
     post = Post.query.get(post_id)
 
-    if session['user_id'] != post.user_id:
-        return jsonify({'error': 'Unauthorized'}), 403
+    if current_user.id != post.user_id:
+        return jsonify({'error': 'You can not delete this post'})
     
+
+
+
+
     if not post:
         return jsonify({'error': 'post not found'}), 404
 
@@ -231,17 +256,17 @@ def create_comment(post_id):
 @api.route('/post/comment/<int:comment_id>/delete', methods=['DELETE'])
 def comment_delete(comment_id):
     if 'user_id' not in session:
-        return jsonify({'error': "Unauthorized"}), 401
+        return jsonify({"error": "Unauthorized"}), 401
     
     comment = Comment.query.get(comment_id)
-    if session['user_id'] != comment.user_id:
-        return jsonify({'error': 'Unauthorized'}), 403
     
     if not comment:
         return jsonify({'error': 'comment not found'}), 404
-    if session['user_id'] != comment.user_id:
-        return jsonify({'error': 'Unauthorized'}), 403
+
+    if session['user_id'] != comment.user_id: # Check if the logged-in user is the author of the comment
+        return jsonify({'error': 'Unauthorized to delete this comment'}), 403
     
     db.session.delete(comment)
     db.session.commit()
+    return jsonify({'message': 'Comment deleted successfully'}), 200
 
