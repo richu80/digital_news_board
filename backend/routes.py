@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request, session, redirect, url_for, flash
 from models import db, User, Post, Like, Comment
-from flask_login import current_user
 
 
 api = Blueprint('api', __name__)
@@ -26,7 +25,8 @@ def present_post(post):
         'image': post.image,
         'category': post.category,
         'created_at': post.created_at,
-        'is_author': current_user.is_authenticated and current_user.id == post.user_id
+        'is_author': 'user_id' in session and session['user_id'] == post.user_id,
+        'counter': Like.query.filter_by(post_id = post.id).count
     }
 
 
@@ -133,16 +133,12 @@ def post(post_id):
 def post_delete(post_id):
     if 'user_id' not in session:
         return jsonify({'error': "Unauthorized"}), 401
-
+    
     post = Post.query.get(post_id)
 
-    if current_user.id != post.user_id:
-        return jsonify({'error': 'You can not delete this post'})
+    if session['user_id'] != post.user_id:
+        return jsonify({'error': 'Unauthorized'}), 403
     
-
-
-
-
     if not post:
         return jsonify({'error': 'post not found'}), 404
 

@@ -7,6 +7,7 @@
         <div>
           <button @click="like" class="hello-kitty-like-button">💗</button>
           <button @click="unlike" class="hello-kitty-unlike-button">🤍</button>
+          <span class="hello-kitty-counter">{{ post.counter }}💔</span>
           <button v-if="post.is_author" @click="deletePost">Удалить</button>
         </div>
         <button 
