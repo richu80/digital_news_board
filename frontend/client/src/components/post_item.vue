@@ -16,7 +16,7 @@
                     v-if="post.is_author"
                     @click="deletePost" 
                     class="hk-button-icon hk-button-delete">
-                    🗑️ Delete
+                    🗑 Delete
                 </button>
             </div>
         </div>
@@ -61,8 +61,6 @@ export default {
                     this.localLikesCount++;
                     alert('Post liked!');
                 }
-                // Optionally, emit refresh if global state needs update
-                // this.$emit('refresh'); 
             } catch (error) {
                 console.error('Error toggling like:', error);
                 alert(error.message || 'Failed to update like status.');
@@ -99,31 +97,26 @@ export default {
 </script>
 
 <style scoped>
-/* Using global .hk-card and .post-card styles from style.css and home.vue */
-/* Specific styles for post_item.vue elements */
-
 .post-image-item {
   width: 100%;
-  max-height: 250px; /* Control image height */
+  max-height: 250px;
   object-fit: cover;
-  border-radius: 18px 18px 0 0; /* Match card rounding */
+  border-radius: 18px 18px 0 0;
   border-bottom: 2px solid #f8b1d5;
   margin-bottom: 15px;
 }
 
 .post-content-item {
-  padding: 0; /* Padding is handled by .hk-card */
+  padding: 0;
 }
 
 .post-title {
-  /* Uses styles from home.vue or global */
-  font-size: 1.6rem; /* Ensure consistency */
+  font-size: 1.6rem;
   color: #d13e6a;
   margin-bottom: 5px;
 }
 
 .post-category {
-  /* Uses styles from home.vue or global */
   font-size: 0.9rem;
   color: #f48fb1;
   margin-bottom: 10px;
@@ -134,7 +127,7 @@ export default {
   line-height: 1.5;
   color: #5e3505;
   margin-bottom: 15px;
-  white-space: pre-wrap; /* Preserve line breaks in post text */
+  white-space: pre-wrap;
 }
 
 .post-meta {
@@ -146,12 +139,11 @@ export default {
 .post-actions-item {
   display: flex;
   gap: 10px;
-  margin-top: auto; /* Pushes to bottom if card is flex column */
-  flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+  margin-top: auto;
+  flex-wrap: wrap;
 }
 
 .hk-button-icon {
-  /* Base style for icon buttons, can extend .hk-button-small or .hk-button */
   padding: 8px 12px;
   font-size: 0.9em;
   border-radius: 15px;
@@ -161,26 +153,26 @@ export default {
   font-weight: bold;
   display: inline-flex;
   align-items: center;
-  gap: 8px; /* Increased gap for icon and text */
+  gap: 8px;
 }
 
 .hk-button-like-style {
-  background-color: #ffeff4; /* Very light pink */
-  color: #e75480; /* Pink text */
-  border-color: #f8b1d5; /* Light pink border */
+  background-color: #ffeff4;
+  color: #e75480;
+  border-color: #f8b1d5;
 }
 .hk-button-like-style:hover {
-  background-color: #f8b1d5; /* Light pink bg */
+  background-color: #f8b1d5;
   color: white;
 }
 
 .hk-button-unlike-style {
-  background-color: #f48fb1; /* Pink, indicating it's liked, action is to unlike */
+  background-color: #f48fb1;
   color: white;
-  border-color: #e75480; /* Darker pink border */
+  border-color: #e75480;
 }
 .hk-button-unlike-style:hover {
-  background-color: #e75480; /* Darker pink bg */
+  background-color: #e75480;
   color: white;
 }
 
@@ -191,13 +183,12 @@ export default {
 }
 
 .hk-button-delete {
-  background-color: #ffeeee; /* Light red */
-  color: #c62828; /* Dark red text */
-  border-color: #ffcdd2; /* Reddish border */
+  background-color: #ffeeee;
+  color: #c62828;
+  border-color: #ffcdd2;
 }
 .hk-button-delete:hover {
-  background-color: #ffcdd2; /* Darker red bg */
+  background-color: #ffcdd2;
   color: #b71c1c;
 }
-
 </style>

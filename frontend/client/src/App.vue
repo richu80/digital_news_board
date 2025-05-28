@@ -27,13 +27,11 @@ export default {
   },
   methods: {
     checkAuthStatus() {
-      // Простая проверка - есть ли id пользователя в сессии
       this.isLoggedIn = document.cookie.includes('session') || sessionStorage.getItem('user_id');
     },
     async logout() {
       try {
         await ApiService.logout();
-        // После выхода перенаправляем на страницу входа
         this.$router.push('/sign_in');
         this.isLoggedIn = false;
       } catch (error) {
@@ -53,20 +51,19 @@ export default {
 </script>
 
 <style>
-/* Enhanced Hello Kitty Navbar and Global Styles */
 body {
-  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive, system-ui, Avenir, Helvetica, Arial, sans-serif; /* Consistent playful font */
-  background-color: #fff0f5; /* Lavender blush - default page background */
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: #fff0f5;
   margin: 0;
   padding: 0;
-  color: #5e3505; /* Default text color from style.css */
+  color: #5e3505;
 }
 
 .hello-kitty-navbar {
-  background-color: #ffb6c1; /* LightPink for navbar */
+  background-color: #ffb6c1;
   padding: 15px 0;
-  box-shadow: 0 3px 6px rgba(231, 84, 128, 0.15); /* Softer pink shadow */
-  border-bottom: 2px solid #f48fb1; /* Pink border bottom */
+  box-shadow: 0 3px 6px rgba(231, 84, 128, 0.15);
+  border-bottom: 2px solid #f48fb1;
 }
 
 .navbar-container {
@@ -75,36 +72,36 @@ body {
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 30px; /* Increased padding */
+  padding: 0 30px;
 }
 
 .hello-kitty-brand {
-  color: #fff; /* White brand text on pink navbar */
+  color: #fff;
   font-family: 'Comic Sans MS', cursive;
-  font-size: 2rem; /* Larger brand */
+  font-size: 2rem;
   font-weight: bold;
-  text-shadow: 1px 1px 2px #e75480; /* Pink text shadow */
+  text-shadow: 1px 1px 2px #e75480;
 }
 
 .nav-links {
   display: flex;
-  gap: 25px; /* Increased gap */
+  gap: 25px;
 }
 
 .nav-link {
-  color: #fff; /* White link text */
+  color: #fff;
   text-decoration: none;
-  font-weight: bold; /* Bolder links */
+  font-weight: bold;
   font-size: 1.1rem;
   padding: 8px 15px;
-  border-radius: 15px; /* More rounded links */
+  border-radius: 15px;
   transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
 }
 
 .nav-link:hover,
-.nav-link.router-link-exact-active { /* Style for active link */
-  background-color: #fff; /* White background on hover/active */
-  color: #e75480; /* Pink text on hover/active */
+.nav-link.router-link-exact-active {
+  background-color: #fff;
+  color: #e75480;
   transform: translateY(-2px);
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
@@ -113,13 +110,8 @@ body {
   cursor: pointer;
 }
 
-/* Removing styles that are now global in style.css or component-specific */
-/* .hello-kitty-title, .form-control.hello-kitty-input are handled globally or in specific components */
-
-/* Page container for consistent padding */
 .page-container {
   padding: 20px;
-  margin-top: 20px; /* Add some space below navbar */
+  margin-top: 20px;
 }
-
 </style>
