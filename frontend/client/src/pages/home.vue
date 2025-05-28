@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import PostItem from '../components/PostItem.vue';
+import PostItem from '../components/post_item.vue';
 import ApiService from '../services/api.js';
 
 export default {
