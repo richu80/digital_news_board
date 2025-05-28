@@ -1,12 +1,9 @@
-from flask import Blueprint, jsonify, request, session, redirect, url_for, flash
+from flask import Blueprint, jsonify, request, session
 from models import db, User, Post, Like, Comment
 from flask_login import login_user, logout_user, current_user, login_required
 from sqlalchemy.exc import IntegrityError
 
-
 api = Blueprint('api', __name__)
-
-
 
 def present_user(user):
     return {
@@ -16,14 +13,10 @@ def present_user(user):
         'role': user.role
     }
 
-
-
 def present_post(post):
     likes_count = Like.query.filter_by(post_id=post.id).count()
-    is_liked_by_current_user = False
-    if current_user.is_authenticated:
-        is_liked_by_current_user = Like.query.filter_by(post_id=post.id, user_id=current_user.id).first() is not None
-
+    user_id = session.get('user_id')
+    is_liked_by_current_user = bool(Like.query.filter_by(post_id=post.id, user_id=user_id).first())
     return {
         'id': post.id,
         'user_id': post.user_id,
@@ -32,11 +25,10 @@ def present_post(post):
         'image': post.image,
         'category': post.category,
         'created_at': post.created_at,
-        'is_author': current_user.is_authenticated and current_user.id == post.user_id,
+        'is_author': user_id == post.user_id,
         'likes_count': likes_count,
         'is_liked': is_liked_by_current_user
     }
-
 
 def present_comment(comment):
     return {
@@ -47,226 +39,116 @@ def present_comment(comment):
         'created_at': comment.created_at
     }
 
-
 @api.route('/sign_up', methods=['POST'])
 def sign_up():
     data = request.get_json()
-
-    if not data or not all(key in data for key in ['username', 'phone_number', 'password']):
+    if not data or not all(k in data for k in ('username','phone_number','password')):
         return jsonify({"error": "Invalid request"}), 400
-
-    # Check if username already exists
     if User.query.filter_by(username=data['username']).first():
         return jsonify({"error": "Username already exists"}), 409
-
-    # Check if phone number already exists
     if User.query.filter_by(phone_number=data['phone_number']).first():
         return jsonify({"error": "Phone number already registered"}), 409
-
-    user = User(
-        username=data['username'],
-        phone_number=data['phone_number'],
-        role='student'
-    )
+    user = User(username=data['username'], phone_number=data['phone_number'], role='student')
     user.set_password(data['password'])
-
     try:
         db.session.add(user)
         db.session.commit()
-    except IntegrityError: # Catch other potential integrity errors, though specific checks above are better
+    except IntegrityError:
         db.session.rollback()
-        return jsonify({"error": "Database error: Could not create user"}), 500
-
+        return jsonify({"error": "Database error"}), 500
     return jsonify({"message": "User registered successfully"}), 201
-
-
 
 @api.route('/sign_in', methods=['POST'])
 def sign_in():
     data = request.get_json()
-
-    if not data or not all(key in data for key in ['phone_number', 'password']):
+    if not data or not all(k in data for k in ('phone_number','password')):
         return jsonify({"error": "Invalid request"}), 400
-
     user = User.query.filter_by(phone_number=data['phone_number']).first()
-
     if not user or not user.check_password(data['password']):
-        return jsonify({"error": "Invalid phone number or password"}), 401
-
+        return jsonify({"error": "Invalid credentials"}), 401
     login_user(user)
     session['user_id'] = user.id
-
     return jsonify({"message": "Login successful"}), 200
-
-
 
 @api.route('/logout', methods=['POST'])
 def logout():
     logout_user()
     session.pop('user_id', None)
-
     return jsonify({'message': 'Logout successful'}), 200
 
-
-
 @api.route('/create_post', methods=['POST'])
+@login_required
 def create_post():
-    if 'user_id' not in session:
-        return jsonify({"error": "Unauthorized"}), 401
-
     data = request.get_json()
-
-    if not data or not all(key in data for key in ['title', 'category', 'text']):
+    if not data or not all(k in data for k in ('title','category','text')):
         return jsonify({"error": "Invalid request"}), 400
-
     post = Post(
         user_id=session['user_id'],
         title=data['title'],
         category=data['category'],
         text=data['text'],
         image=data.get('image')
-)
-
+    )
     db.session.add(post)
     db.session.commit()
-
     return jsonify(present_post(post)), 201
-
-
 
 @api.route('/home', methods=['GET'])
 def home():
-    posts = Post.query.all()
-
-    return jsonify([present_post(post) for post in posts]), 200
-
-
-
-@api.route('/post/<int:post_id>', methods=['GET'])
-def post(post_id):
-    post = Post.query.get(post_id)
-
-    return jsonify(present_post(post)), 200
-
-
+    posts = Post.query.order_by(Post.created_at.desc()).all()
+    return jsonify([present_post(p) for p in posts]), 200
 
 @api.route('/post/<int:post_id>/delete', methods=['DELETE'])
+@login_required
 def post_delete(post_id):
-    if 'user_id' not in session:
-        return jsonify({'error': "Unauthorized"}), 401
-
-    post = Post.query.get(post_id)
-
-    if current_user.id != post.user_id:
-        return jsonify({'error': 'You can not delete this post'})
-    
-
-
-
-
-    if not post:
-        return jsonify({'error': 'post not found'}), 404
-
+    post = Post.query.get_or_404(post_id)
+    if session.get('user_id') != post.user_id:
+        return jsonify({'error': 'Unauthorized'}), 403
+    Comment.query.filter_by(post_id=post.id).delete()
+    Like.query.filter_by(post_id=post.id).delete()
     db.session.delete(post)
     db.session.commit()
     return jsonify({'message': 'Post deleted successfully'}), 200
 
 
 @api.route('/post/<int:post_id>/like', methods=['POST'])
+@login_required
 def post_like(post_id):
-    if 'user_id' not in session:
-        return jsonify({'error': "Unauthorized"}), 401
-    
-    post = Post.query.get(post_id)
-
-    if not post:
-        return jsonify({'error': 'post not found'}), 404
-    
-    like = Like.query.filter_by(user_id=session['user_id'], post_id=post_id).first()
-    
-    if like:
-        return jsonify({'error': 'You already liked this post'}), 400
-    
-    like = Like(post_id=post_id,
-                user_id=session['user_id']
-    )
-
-    db.session.add(like)
+    post = Post.query.get_or_404(post_id)
+    if Like.query.filter_by(user_id=session['user_id'], post_id=post_id).first():
+        return jsonify({'error': 'Already liked'}), 400
+    db.session.add(Like(user_id=session['user_id'], post_id=post_id))
     db.session.commit()
     return jsonify({'message': 'Post liked successfully'}), 200
-
-
 
 @api.route('/post/<int:post_id>/unlike', methods=['DELETE'])
+@login_required
 def post_unlike(post_id):
-    if 'user_id' not in session:
-        return jsonify({'error': "Unauthorized"}), 401
-    
-    post = Post.query.get(post_id)
-
-    if not post:
-        return jsonify({'error': 'post not found'}), 404
-    
-    like = Like.query.filter_by(user_id=session['user_id'], post_id=post_id).first()
-
-    if not like:
-        return jsonify({'error': 'like not found'}), 400
-    
+    like = Like.query.filter_by(user_id=session['user_id'], post_id=post_id).first_or_404()
     db.session.delete(like)
     db.session.commit()
-    return jsonify({'message': 'Post liked successfully'}), 200
-
+    return jsonify({'message': 'Post unliked successfully'}), 200
 
 @api.route('/get_users', methods=['GET'])
 def get_users():
-    users = User.query.all()
-
-    return jsonify([present_user(user) for user in users]), 200
-
-
+    return jsonify([present_user(u) for u in User.query.all()]), 200
 
 @api.route('/post/<int:post_id>/create_comment', methods=['POST'])
+@login_required
 def create_comment(post_id):
-    if 'user_id' not in session:
-        return jsonify({"error": "Unauthorized"}), 401
-    
-    post = Post.query.get(post_id)
-
-    if not post:
-        return jsonify({'error': 'post not found'}), 404
-    
-    data = request.get_json()
-
-    if not data:
-        return jsonify({"error": "Invalid request"}), 400
-    
-    comment = Comment(
-        post_id=post_id,
-        user_id=session['user_id'],
-        text=data['text']
-    )
-
+    post = Post.query.get_or_404(post_id)
+    data = request.get_json() or {}
+    comment = Comment(post_id=post_id, user_id=session['user_id'], text=data.get('text',''))
     db.session.add(comment)
     db.session.commit()
-
     return jsonify(present_comment(comment)), 201
 
-
-
 @api.route('/post/comment/<int:comment_id>/delete', methods=['DELETE'])
+@login_required
 def comment_delete(comment_id):
-    if 'user_id' not in session:
-        return jsonify({"error": "Unauthorized"}), 401
-    
-    comment = Comment.query.get(comment_id)
-    
-    if not comment:
-        return jsonify({'error': 'comment not found'}), 404
-
-    if session['user_id'] != comment.user_id: # Check if the logged-in user is the author of the comment
-        return jsonify({'error': 'Unauthorized to delete this comment'}), 403
-    
+    comment = Comment.query.get_or_404(comment_id)
+    if session.get('user_id') != comment.user_id:
+        return jsonify({'error': 'Unauthorized'}), 403
     db.session.delete(comment)
     db.session.commit()
     return jsonify({'message': 'Comment deleted successfully'}), 200
-
