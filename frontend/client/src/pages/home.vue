@@ -24,40 +24,36 @@
 </template>
 
 <script>
-    import PostItem from '../components/post_item.vue'
-    import ApiService from '../services/api.js'
+import PostItem from '../components/PostItem.vue';
+import ApiService from '../services/api.js';
 
-    export default {
-        components: {PostItem},
-        data() {
-            return { 
-                posts: [],
-                loading: false,
-                error: null
-            }
-        },
-        methods: {
-            async fetchPosts() {
-                this.loading = true;
-                this.error = null;
-                try {
-                    const fetchedPosts = await ApiService.getPosts();
-                    this.posts = fetchedPosts.map(post => ({
-                        ...post,
-                        is_author: post.user_id === (sessionStorage.getItem('user_id') ? parseInt(sessionStorage.getItem('user_id')) : null)
-                    }));
-                } catch (error) {
-                    this.error = 'Could not load posts. Please try again later.';
-                    console.error("Error fetching posts:", error);
-                } finally {
-                    this.loading = false;
-                }
-            },
-        },
-        mounted() {
-            this.fetchPosts();
-        }
+export default {
+  components: { PostItem },
+  data() {
+    return { 
+      posts: [],
+      loading: false,
+      error: null
+    };
+  },
+  methods: {
+    async fetchPosts() {
+      this.loading = true;
+      this.error = null;
+      try {
+        const response = await ApiService.getPosts();
+        this.posts = response; // теперь бекенд возвращает is_author
+      } catch (err) {
+        this.error = 'Could not load posts. Please try again later.';
+      } finally {
+        this.loading = false;
+      }
     }
+  },
+  mounted() {
+    this.fetchPosts();
+  }
+};
 </script>
 
 <style scoped>
